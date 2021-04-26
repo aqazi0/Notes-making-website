@@ -1,0 +1,139 @@
+showNotes();
+
+// If user adds a note, add it to the localStorage
+let addBtn = document.getElementById("addBtn");
+addBtn.addEventListener("click", function(e) {
+  if(Validate()){
+    alert('success','Data Added Successfuly');
+    let addTxt = document.getElementById("addTxt");
+    let addTitle = document.getElementById("addTitle");
+    let notes = localStorage.getItem("notes");
+    if (notes == null) {
+      notesObj = [];
+    } else {
+      notesObj = JSON.parse(notes);
+    }
+    let newnote={
+      title:addTitle.value,
+      note:addTxt.value,
+      imp:"0"
+    }
+    notesObj.push(newnote);
+    localStorage.setItem("notes", JSON.stringify(notesObj));
+    addTxt.value = "";
+    addTitle.value = "";
+  }
+    showNotes();
+});
+
+
+function Validate(){
+  let addTxt = document.getElementById("addTxt").value;
+  let addTitle = document.getElementById("addTitle").value;
+  if(addTxt.length>0 && addTitle.length>0){
+    return true;
+  }    
+  else{
+    alert('danger', 'Enter Title and Note properly')
+    }
+  return false;
+}
+// Function to show elements from localStorage
+function showNotes() {
+  let notes = localStorage.getItem("notes");
+  if (notes == null) {
+    notesObj = [];
+  } else {
+    notesObj = JSON.parse(notes);
+  }
+  let html = "";
+  notesObj.forEach(function(element, index) {
+    if(element.imp=="0"){
+    html += `
+            <div class="noteCard my-2 mx-2 card" id='mynote' style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">${element.title}</h5>
+                        <p class="card-text"> ${element.note}</p>
+                        <button id="${index}"onclick="deleteNote(this.id)" class="btn btn-primary">Delete Note</button>
+                        <button id="${index}"onclick="setimp(this.id)" class="btn btn-primary">Set Imp</button>
+                    </div>
+                </div>`;
+    }
+    else{      
+    html += `
+    <div class="noteCard my-2 mx-2 card" style="background-color:green" id='mynote' style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">${element.title}</h5>
+                <p class="card-text"> ${element.note}</p>
+                <button id="${index}"onclick="deleteNote(this.id)" class="btn btn-primary">Delete Note</button>
+                <button id="${index}"onclick="setimp(this.id)" class="btn btn-primary">Not Imp</button>
+            </div>
+        </div>`;
+    }
+  });
+  let notesElm = document.getElementById("notes");
+  if (notesObj.length != 0) {
+    notesElm.innerHTML = html;
+  } else {
+    notesElm.innerHTML = `Nothing to show!  `;
+  }
+}
+
+// Function to delete a note
+function deleteNote(index) {
+  let notes = localStorage.getItem("notes");
+  if (notes == null) {
+    notesObj = [];
+  } else {
+    notesObj = JSON.parse(notes);
+  }
+
+  notesObj.splice(index, 1);
+  localStorage.setItem("notes", JSON.stringify(notesObj));
+  showNotes();
+}
+
+
+let search = document.getElementById('searchTxt');
+search.addEventListener("input", function(){
+
+    let inputVal = search.value.toLowerCase();
+    let noteCards = document.getElementsByClassName('noteCard');
+    Array.from(noteCards).forEach(function(element){
+        let cardTxt = element.getElementsByTagName("p")[0].innerText;
+        if(cardTxt.includes(inputVal)){
+            element.style.display = "block";
+        }
+        else{
+            element.style.display = "none";
+        }
+    })
+})
+
+function setimp(index){
+  let notes = localStorage.getItem("notes");
+  if (notes == null) {
+    notesObj = [];
+  } else {
+    notesObj = JSON.parse(notes);
+  }
+  if(notesObj[index].imp=='0')
+  notesObj[index].imp="1";
+  else
+  notesObj[index].imp="0";
+  localStorage.setItem('notes',JSON.stringify(notesObj));
+  showNotes()
+}
+
+function alert(color, message){
+  let alertdiv=document.getElementById('alert');
+  alerthtml=`
+  <div class="alert alert-${color}" role="alert">
+  <strong>Message! </strong>${message}
+</div>
+  `
+  alertdiv.innerHTML=alerthtml;
+  setTimeout(() => {
+    document.getElementById('alert').innerHTML="";
+  }, 3000);
+}
